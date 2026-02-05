@@ -1,0 +1,15 @@
+/Users/evanjung/Projects/CSC350H/Eleven/bin/Debug/net10.0/Eleven
+/Users/evanjung/Projects/CSC350H/Eleven/bin/Debug/net10.0/Eleven.deps.json
+/Users/evanjung/Projects/CSC350H/Eleven/bin/Debug/net10.0/Eleven.runtimeconfig.json
+/Users/evanjung/Projects/CSC350H/Eleven/bin/Debug/net10.0/Eleven.dll
+/Users/evanjung/Projects/CSC350H/Eleven/bin/Debug/net10.0/Eleven.pdb
+/Users/evanjung/Projects/CSC350H/Eleven/obj/Debug/net10.0/Eleven.GeneratedMSBuildEditorConfig.editorconfig
+/Users/evanjung/Projects/CSC350H/Eleven/obj/Debug/net10.0/Eleven.AssemblyInfoInputs.cache
+/Users/evanjung/Projects/CSC350H/Eleven/obj/Debug/net10.0/Eleven.AssemblyInfo.cs
+/Users/evanjung/Projects/CSC350H/Eleven/obj/Debug/net10.0/Eleven.csproj.CoreCompileInputs.cache
+/Users/evanjung/Projects/CSC350H/Eleven/obj/Debug/net10.0/Eleven.sourcelink.json
+/Users/evanjung/Projects/CSC350H/Eleven/obj/Debug/net10.0/Eleven.dll
+/Users/evanjung/Projects/CSC350H/Eleven/obj/Debug/net10.0/refint/Eleven.dll
+/Users/evanjung/Projects/CSC350H/Eleven/obj/Debug/net10.0/Eleven.pdb
+/Users/evanjung/Projects/CSC350H/Eleven/obj/Debug/net10.0/Eleven.genruntimeconfig.cache
+/Users/evanjung/Projects/CSC350H/Eleven/obj/Debug/net10.0/ref/Eleven.dll
