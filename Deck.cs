@@ -1,16 +1,22 @@
-
+using System;
 
 public class Deck
 {
-  private List<Card> cards = new List<Card>();
+  private Card[] cards;
+  public int remainingCards;
 
   public Deck()
   {
-    for {int i = 0; i < Card.Suits.Length; i++)
+    cards = new Card[52];
+    remainingCards = 52;
+
+    int index = 0;
+    for (int i = 0; i < Card.Suits.Length; i++)
     {
       for (int j = 0; j < Card.Values.Length; j++)
       {
-        cards.Add(new Card(Card.Suits[i], Card.Values[j]));
+        cards[index] = new Card(Card.Suits[i], Card.Values[j]);
+        index++;
       }
     }
   }
@@ -18,7 +24,19 @@ public class Deck
   public void shuffle()
   {
     Random random = new Random();
-    cards = cards.OrderBy(card => random.Next()).ToList();
+    for (int i = cards.Length - 1; i > 0; i--)
+    {
+      int j = random.Next(0, i + 1);
+      Card temp = cards[i];
+      cards[i] = cards[j];
+      cards[j] = temp;
+    }
+    remainingCards = 52;
   }
+
+  public Card deal()
+  {
+    remainingCards--;
+    return cards[52 - remainingCards - 1];
   }
 }
