@@ -1,51 +1,49 @@
 using System;
 
+namespace Eleven;
+
+public enum Suit
+{
+    Clubs, Diamonds, Hearts, Spades
+}
+
 public class Card
 {
-    private int value;
-    private string suit;
+    public readonly int Rank;
+    public readonly Suit Suit;
+    public readonly int ValueForEleven;
+    public readonly bool IsJack;
+    public readonly bool IsQueen;
+    public readonly bool IsKing;
 
-    public static string[] Suits = { "Hearts", "Diamonds", "Clubs", "Spades" };
-    public static int[] Values = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
-    
-    public Card(string suit, int value)
+    public Card(Suit suit, int rank)
     {
-        this.suit = suit;
-        this.value = value;
-    }
-
-    public int getValue()
-    {
-        return value;
-    }
-
-    public string getSuit()
-    {
-        return suit;
+        Suit = suit;
+        Rank = rank;
+        ValueForEleven = rank >= 1 && rank <= 10 ? rank : 0;
+        IsJack = rank == 11;
+        IsQueen = rank == 12;
+        IsKing = rank == 13;
     }
 
     public override string ToString()
     {
-        string valueStr;
-        switch (value)
+        string rankStr = Rank switch
         {
-            case 1:
-                valueStr = "A";
-                break;
-            case 11:
-                valueStr = "J";
-                break;
-            case 12:
-                valueStr = "Q";
-                break;
-            case 13:
-                valueStr = "K";
-                break;
-            default:
-                valueStr = value.ToString();
-                break;
-        }
-
-        return $"({valueStr}, {suit})";
+            1 => "A",
+            11 => "J",
+            12 => "Q",
+            13 => "K",
+            _ => Rank.ToString()
+        };
+        string suitStr = Suit switch
+        {
+            Suit.Clubs => "♣",
+            Suit.Diamonds => "♦",
+            Suit.Hearts => "♥",
+            Suit.Spades => "♠",
+            _ => Suit.ToString()
+        };
+        return $"({rankStr}, {suitStr})";
     }
 }

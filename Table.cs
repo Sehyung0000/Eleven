@@ -1,73 +1,47 @@
 using System;
 
+namespace Eleven;
+
 public class Table
 {
-    private Card[] cardsOnTable;
+
+    private readonly List<Card> _visibleCards = new();
+
+    public readonly int MaxCards = 9;
+    public readonly IReadOnlyList<Card> Cards;
 
     public Table()
     {
-        cardsOnTable = new Card[9];
-        for (int i = 0; i < 9; i++)
-        {
-            cardsOnTable[i] = null;
-        }
+        Cards = _visibleCards;
     }
 
-    public void initialize(Deck deck)
+    public int Count() => _visibleCards.Count;
+
+    public bool IsEmpty() => _visibleCards.Count == 0;
+
+    public void AddCard(Card card)
     {
-        for (int i = 0; i < 9; i++)
-        {
-            cardsOnTable[i] = deck.deal();
-        }
+        if (_visibleCards.Count >= MaxCards)
+            throw new InvalidOperationException($"Table cannot hold more than {MaxCards} cards.");
+        _visibleCards.Add(card);
     }
 
-    public void displayCards()
+    public Card GetCardAt(int index) => _visibleCards[index];
+
+    public List<Card> GetCardsByIndices(IEnumerable<int> indices)
     {
-        Console.WriteLine("\n=== Table ===");
-        for (int i = 0; i < 9; i++)
+        var result = new List<Card>();
+        foreach (int i in indices)
         {
-            Console.Write($"{i}: ");
-            if (cardsOnTable[i] != null)
-            {
-                Console.Write(cardsOnTable[i]);
-            }
-            else
-            {
-                Console.Write("[Empty]");
-            }
-            
-            if (i < 8)
-            {
-                Console.Write(", ");
-            }
+            if (i >= 0 && i < _visibleCards.Count)
+                result.Add(_visibleCards[i]);
         }
-        Console.WriteLine("\n");
+        return result;
     }
 
-    public Card[] getCards()
+    public void RemoveCards(IEnumerable<Card> cards)
     {
-        return cardsOnTable;
-    }
-
-    public void remove(int[] positions)
-    {
-        foreach (int pos in positions)
-        {
-            cardsOnTable[pos] = null;
-        }
-    }
-
-    public void refill(Deck deck, int remainingCards)
-    {
-        if (remainingCards <= 0) return;
-        
-        for (int i = 0; i < 9; i++)
-        {
-            if (cardsOnTable[i] == null && remainingCards > 0)
-            {
-                cardsOnTable[i] = deck.deal();
-                remainingCards--;
-            }
-        }
+        var set = new HashSet<Card>(cards);
+        _visibleCards.RemoveAll(c => set.Contains(c));
     }
 }

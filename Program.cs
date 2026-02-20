@@ -1,30 +1,60 @@
 using System;
+using Eleven;
 
 class Program
 {
     static void Main(string[] args)
     {
         GameController game = new GameController();
-        game.startGame();
+        game.StartGame();
 
-        while (!game.isGameOver())
+        void PrintTable()
         {
-            game.displayStatus();
-            
-            Console.Write("Enter positions (e.g., 0 1 or 2 4 5): ");
-            string input = Console.ReadLine();
-            
+            Console.WriteLine("\n=== Table ===");
+            const int cols = 3;
+            for (int row = 0; row < cols; row++)
+            {
+                for (int col = 0; col < cols; col++)
+                {
+                    int i = row * cols + col;
+                    int num = i + 1;
+                    string cell = i < game.Table.Count()
+                        ? $"{num}: {game.Table.GetCardAt(i)}"
+                        : $"{num}: [Empty]";
+                    Console.Write(cell.PadRight(14));
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine();
+        }
+
+        while (game.State == GameState.Running)
+        {
+            PrintTable();
+            game.CheckEndState();
+            if (game.State != GameState.Running)
+                break;
+
+            Console.Write("Enter positions 1–9 (12 or 459, no spaces needed): ");
+            string? raw = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(raw)) break;
+
             try
             {
-                string[] parts = input.Split(' ');
-                int[] positions = new int[parts.Length];
-                
-                for (int i = 0; i < parts.Length; i++)
+                string digits = raw.Replace(" ", "").Replace(",", "");
+                if (digits.Length == 0) continue;
+                int[] indices = new int[digits.Length];
+                for (int i = 0; i < digits.Length; i++)
                 {
-                    positions[i] = int.Parse(parts[i]);
+                    if (digits[i] < '1' || digits[i] > '9')
+                        throw new FormatException();
+                    indices[i] = digits[i] - '1';
                 }
 
-                game.submitSelection(positions);
+                if (!game.SubmitSelection(indices, out string message))
+                    Console.WriteLine(message);
+                if (game.State != GameState.Running)
+                    PrintTable();
             }
             catch
             {

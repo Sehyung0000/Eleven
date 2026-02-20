@@ -1,147 +1,86 @@
 using System;
 
+namespace Eleven;
+
+public enum GameState { NotStarted, Running, Won, Lost }
+
 public class GameController
 {
-    private Deck deck;
-    private Table table;
-    private bool winOrLoss;
+    private Deck _deck;
+    private Table _table;
+    private MoveValidator _validator;
 
-    public GameController()
+    public GameState State { get; private set; } = GameState.NotStarted;
+    public Deck Deck => _deck;
+    public Table Table => _table;
+
+    public GameController(Deck? deck = null, Table? table = null, MoveValidator? validator = null)
     {
-        deck = new Deck();
-        table = new Table();
-        winOrLoss = false;
+        _deck = deck ?? new Deck();
+        _table = table ?? new Table();
+        _validator = validator ?? new MoveValidator();
     }
 
-    public void startGame()
+    public void StartGame()
     {
         Console.WriteLine("=== ELEVENS GAME ===\n");
-        deck.shuffle();
-        table.initialize(deck);
+        State = GameState.Running;
+        _deck.Shuffle();
+        RefillTableToNine();
     }
 
-    public void displayStatus()
+    public void RefillTableToNine()
     {
-        Console.WriteLine($"Remaining cards: {deck.remainingCards}");
-        table.displayCards();
-        checkEndState();
+        while (_table.Count() < _table.MaxCards && !_deck.IsEmpty())
+        {
+            _table.AddCard(_deck.DealCard());
+        }
     }
 
-    public void submitSelection(int[] positions)
+    public bool SubmitSelection(IReadOnlyList<int> indices, out string message)
     {
-        if (!validate(positions))
+        message = "";
+        if (State != GameState.Running)
         {
-            Console.WriteLine("Invalid selection!");
-            return;
-        }
-
-        table.remove(positions);
-        table.refill(deck, deck.remainingCards);
-        checkEndState();
-    }
-
-    public bool validate(int[] positions)
-    {
-        Card[] cards = table.getCards();
-        
-        for (int i = 0; i < positions.Length; i++)
-        {
-            if (cards[positions[i]] == null)
-            {
-                return false;
-            }
-        }
-
-        if (positions.Length == 2)
-        {
-            int sum = cards[positions[0]].getValue() + cards[positions[1]].getValue();
-            if (sum == 11)
-            {
-                Console.WriteLine($"Valid: {cards[positions[0]]} + {cards[positions[1]]} = 11");
-                return true;
-            }
-            return false;
-        }
-        else if (positions.Length == 3)
-        {
-            bool hasJ = false, hasQ = false, hasK = false;
-            for (int i = 0; i < 3; i++)
-            {
-                int val = cards[positions[i]].getValue();
-                if (val == 11) hasJ = true;
-                if (val == 12) hasQ = true;
-                if (val == 13) hasK = true;
-            }
-            
-            if (hasJ && hasQ && hasK)
-            {
-                Console.WriteLine("Valid: J-Q-K combination");
-                return true;
-            }
+            message = "Game is not in progress.";
             return false;
         }
 
-        return false;
-    }
-
-    public void checkEndState()
-    {
-        Card[] cards = table.getCards();
-        int emptyCount = 0;
-        
-        for (int i = 0; i < 9; i++)
+        var selected = _table.GetCardsByIndices(indices);
+        if (selected.Count != indices.Count)
         {
-            if (cards[i] == null) emptyCount++;
+            message = "Invalid indices.";
+            return false;
         }
 
-        if (emptyCount == 9 && deck.remainingCards == 0)
+        if (!_validator.IsValidSelection(selected))
         {
-            winOrLoss = true;
-            Console.WriteLine("\n=== YOU WIN! ===");
+            message = "Invalid selection.";
+            return false;
+        }
+
+        _table.RemoveCards(selected);
+        RefillTableToNine();
+        CheckEndState();
+        return true;
+    }
+
+    public void CheckEndState()
+    {
+        if (CheckWin())
+        {
+            State = GameState.Won;
+            Console.WriteLine("\n=== YOU WIN ===");
             return;
         }
-
-        if (!hasValidMoves(cards))
+        if (CheckLose())
         {
-            winOrLoss = true;
-            Console.WriteLine("\n=== YOU LOSE! No valid moves remaining. ===");
+            State = GameState.Lost;
+            Console.WriteLine("\n=== YOU LOSE ===");
         }
     }
 
-    private bool hasValidMoves(Card[] cards)
-    {
-        for (int i = 0; i < 9; i++)
-        {
-            if (cards[i] == null) continue;
+    public bool CheckWin() => _table.IsEmpty() && _deck.IsEmpty();
 
-            for (int j = i + 1; j < 9; j++)
-            {
-                if (cards[j] == null) continue;
-
-                if (cards[i].getValue() + cards[j].getValue() == 11)
-                {
-                    return true;
-                }
-            }
-        }
-
-        bool hasJ = false, hasQ = false, hasK = false;
-        for (int i = 0; i < 9; i++)
-        {
-            if (cards[i] != null)
-            {
-                int val = cards[i].getValue();
-                if (val == 11) hasJ = true;
-                if (val == 12) hasQ = true;
-                if (val == 13) hasK = true;
-            }
-        }
-
-        return hasJ && hasQ && hasK;
-    }
-
-    public bool isGameOver()
-    {
-        return winOrLoss;
-    }
+    public bool CheckLose() => !_validator.HasLegalMoves(_table.Cards);
 }

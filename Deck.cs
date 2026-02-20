@@ -1,42 +1,43 @@
 using System;
 
+namespace Eleven;
+
 public class Deck
 {
-  private Card[] cards;
-  public int remainingCards;
+    private List<Card> _cards = new();
 
-  public Deck()
-  {
-    cards = new Card[52];
-    remainingCards = 52;
+    public readonly int Count = 52;
 
-    int index = 0;
-    for (int i = 0; i < Card.Suits.Length; i++)
+    public Deck()
     {
-      for (int j = 0; j < Card.Values.Length; j++)
-      {
-        cards[index] = new Card(Card.Suits[i], Card.Values[j]);
-        index++;
-      }
+        foreach (Suit suit in Enum.GetValues<Suit>())
+        {
+            for (int rank = 1; rank <= 13; rank++)
+            {
+                _cards.Add(new Card(suit, rank));
+            }
+        }
     }
-  }
 
-  public void shuffle()
-  {
-    Random random = new Random();
-    for (int i = cards.Length - 1; i > 0; i--)
+    public bool IsEmpty() => _cards.Count == 0;
+
+    public void Shuffle()
     {
-      int j = random.Next(0, i + 1);
-      Card temp = cards[i];
-      cards[i] = cards[j];
-      cards[j] = temp;
+        Random random = new Random();
+        for (int i = _cards.Count - 1; i > 0; i--)
+        {
+            int j = random.Next(0, i + 1);
+            (_cards[i], _cards[j]) = (_cards[j], _cards[i]);
+        }
     }
-    remainingCards = 52;
-  }
 
-  public Card deal()
-  {
-    remainingCards--;
-    return cards[52 - remainingCards - 1];
-  }
+    public Card DealCard()
+    {
+        if (_cards.Count == 0)
+            throw new InvalidOperationException("Deck is empty.");
+        int last = _cards.Count - 1;
+        Card card = _cards[last];
+        _cards.RemoveAt(last);
+        return card;
+    }
 }
